@@ -2,7 +2,7 @@
 name = "language-parser"
 version = "0.1.0"
 description = ""
-authors = ["seanz <seanzfx@yandex.ru>"]
+authors = ["seanz"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
