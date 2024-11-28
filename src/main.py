@@ -1,8 +1,4 @@
-from .lexer.lexer import (
-    split_file_to_lexems,
-    lexems_to_tokens
-)
-from .utils.utils import print_few_lists
+from .lexer.lexer import tokenize_file
 
 
 def main():
@@ -13,10 +9,10 @@ def main():
         print("File not found")
         exit(1)
 
-    raw_tokens = split_file_to_lexems(file)
-    tokens = lexems_to_tokens(raw_tokens)
+    tokens = tokenize_file(file)
 
-    print_few_lists(raw_tokens, tokens)
+    for token in tokens:
+        print(token)
 
 
 if __name__ == "__main__":

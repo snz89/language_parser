@@ -1,3 +1,10 @@
+from dataclasses import dataclass
+
+@dataclass
+class Token:
+    type: str
+    value: str
+
 KEYWORDS = {"program", "var", "begin", "end", "if", "then", "else",  "for",
             "to", "do", "while", "read", "write", "writeln", "integer", "real", "boolean"}
 SYMBOL_OPERATORS = {"+", "-", "*", "/", "(", ")", "[", "]", ",", ";", ":", "."}
