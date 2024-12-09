@@ -1,9 +1,10 @@
-from parser.lexer.lexer import Lexer
-from parser.lexer.tokens import TokenType
+from parser.lexer import Lexer
+from parser.tokens import TokenType
+
 
 def main():
     path = "example.txt"
-    with open(path, 'r') as file:
+    with open(path, "r") as file:
         text = file.read()
     lexer = Lexer(text)
     token = lexer.get_next_token()
