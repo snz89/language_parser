@@ -1,4 +1,6 @@
-from parser.tokens import Token, TokenType
+from typing import List
+
+from tokens import TokenType, Token, Id
 
 
 class Lexer:
@@ -7,7 +9,16 @@ class Lexer:
         self.pos = 0  # Текущая позиция в тексте
         self.line = 1  # Текущая строка
         self.column = 1  # Текущий столбец
-        self.current_char = self.text[self.pos] if self.pos < len(self.text) else None
+        self.current_char = self.text[self.pos] if self.pos < len(
+            self.text) else None
+
+    def reset(self):
+        """Возвращает лексер в начало файла"""
+        self.pos = 0
+        self.line = 1
+        self.column = 1
+        self.current_char = self.text[self.pos] if self.pos < len(
+            self.text) else None
 
     def advance(self):
         """Перейти к следующему символу."""
@@ -36,6 +47,14 @@ class Lexer:
             self.advance()
             if self.current_char == "/":
                 self.advance()
+            else:
+                print(
+                    f"SyntaxError: unterminated multiline comment (detected at line {self.line})")
+                exit(1)
+        else:
+            print(
+                f"SyntaxError: unterminated multiline comment (detected at line {self.line})")
+            exit(1)
 
     def number(self):
         """Считать число (целое или вещественное)."""
@@ -242,7 +261,8 @@ class Lexer:
                 return Token(TokenType.TILDE, "~", self.line, self.column)
 
             # Если ничего не подошло, возвращаем токен ошибки
-            token = Token(TokenType.NULL, self.current_char, self.line, self.column)
+            token = Token(TokenType.NULL, self.current_char,
+                          self.line, self.column)
             self.advance()
             return token
 
@@ -256,3 +276,14 @@ class Lexer:
             return self.text[peek_pos]
         else:
             return None
+
+    def get_id_table(self) -> List[Id]:
+        """Возвращает таблицу идентификаторов"""
+        id_table = []
+        self.reset()
+        token = self.get_next_token()
+        while token.type != TokenType.FIN:
+            if token.type == TokenType.ID:
+                id_table.append(Id(name=token.value))
+            token = self.get_next_token()
+        return list(set(id_table))

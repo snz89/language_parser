@@ -1,3 +1,7 @@
+/* ajkaljlskjd
+ajklajalkja
+jalkajlkaja */
+
 program
 var
     x, y, z: integer;

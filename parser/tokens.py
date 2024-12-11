@@ -73,10 +73,17 @@ class TokenType(Enum):
 
 @dataclass(frozen=True)
 class Token:
-    type: str
+    type: TokenType
     value: str
     line: int
     column: int
 
     def __str__(self) -> str:
         return f"({self.type}, '{self.value}', {self.line}, {self.column})"
+
+
+@dataclass(unsafe_hash=True)
+class Id:
+    name: str
+    declared: bool = False
+    assigned: bool = False
