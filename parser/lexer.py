@@ -7,7 +7,8 @@ class Lexer:
         self.pos = 0  # Текущая позиция в тексте
         self.line = 1  # Текущая строка
         self.column = 1  # Текущий столбец
-        self.current_char = self.text[self.pos] if self.pos < len(self.text) else None
+        self.current_char = self.text[self.pos] if self.pos < len(
+            self.text) else None
 
     def advance(self):
         """Перейти к следующему символу."""
@@ -36,6 +37,14 @@ class Lexer:
             self.advance()
             if self.current_char == "/":
                 self.advance()
+            else:
+                print(
+                    f"SyntaxError: unterminated multiline comment (detected at line {self.line})")
+                exit(1)
+        else:
+            print(
+                f"SyntaxError: unterminated multiline comment (detected at line {self.line})")
+            exit(1)
 
     def number(self):
         """Считать число (целое или вещественное)."""
@@ -72,7 +81,8 @@ class Lexer:
                 return Token(TokenType.NULL, result, self.line, self.column)
             return Token(TokenType.NUM_REAL, result, self.line, self.column)
 
-        while self.current_char is not None and self.current_char.isalnum():
+        # Проверяем окончание числа, только если result содержит цифры
+        if len(result) > 0 and result[-1].isdigit() and self.current_char is not None:
             if self.current_char is not None and (self.current_char.lower() == "b"):
                 current_type = TokenType.BIN
             elif self.current_char is not None and (self.current_char.lower() == "o"):
@@ -81,17 +91,13 @@ class Lexer:
                 current_type = TokenType.HEX
             elif self.current_char is not None and (self.current_char.lower() == "d"):
                 current_type = TokenType.DEC
-            elif self.current_char is not None and self.current_char.isdigit():
-                if current_type != TokenType.HEX:
-                    return Token(TokenType.NULL, result, self.line, self.column)
-            elif self.current_char is not None and self.current_char.isalpha():
-                if (
-                    current_type != TokenType.HEX
-                    or self.current_char.lower() not in "abcdef"
-                ):
-                    return Token(TokenType.NULL, result, self.line, self.column)
-            result += self.current_char
-            self.advance()
+            if current_type != TokenType.DEC:
+                result += self.current_char
+                self.advance()
+
+        # Если после числа идет буква, но не подходящее окончание, это ошибка
+        if current_type == TokenType.DEC and self.current_char is not None and self.current_char.isalpha():
+            return Token(TokenType.NULL, result, self.line, self.column)
 
         if current_type == TokenType.DEC:
             return Token(TokenType.DEC, result, self.line, self.column)
@@ -173,16 +179,6 @@ class Lexer:
             token_type = TokenType.GE
         elif result.upper() == "AS":
             token_type = TokenType.AS
-        elif result.upper() == "B" and len(result) == 1:
-            token_type = TokenType.BIN_END
-        elif result.upper() == "O" and len(result) == 1:
-            token_type = TokenType.OCT_END
-        elif result.upper() == "D" and len(result) == 1:
-            token_type = TokenType.DEC_END
-        elif result.upper() == "H" and len(result) == 1:
-            token_type = TokenType.HEX_END
-        elif result.upper() == "E" and len(result) == 1:
-            token_type = TokenType.EXP
 
         return Token(token_type, result, self.line, self.column)
 
@@ -242,7 +238,8 @@ class Lexer:
                 return Token(TokenType.TILDE, "~", self.line, self.column)
 
             # Если ничего не подошло, возвращаем токен ошибки
-            token = Token(TokenType.NULL, self.current_char, self.line, self.column)
+            token = Token(TokenType.NULL, self.current_char,
+                          self.line, self.column)
             self.advance()
             return token
 

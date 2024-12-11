@@ -1,17 +1,19 @@
 from parser.lexer import Lexer
-from parser.tokens import TokenType
-
+from parser.parser import Parser
 
 def main():
-    path = "example.txt"
+    path = "example.txt"  # Путь к файлу с кодом
     with open(path, "r") as file:
         text = file.read()
-    lexer = Lexer(text)
-    token = lexer.get_next_token()
-    while token.type != TokenType.FIN:
-        print(token)
-        token = lexer.get_next_token()
 
+    lexer = Lexer(text)
+    parser = Parser(lexer)
+
+    try:
+        parser.parse()
+        print("Yeah!")
+    except Exception as e:
+        print(e)
 
 if __name__ == "__main__":
     main()
