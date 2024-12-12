@@ -95,9 +95,12 @@ class Lexer:
                 result += self.current_char
                 self.advance()
 
-        # Если после числа идет буква, но не подходящее окончание, это ошибка
+        # Если после числа идет буква, но не подходящее окончание, это ошибочный идентификатор
         if current_type == TokenType.DEC and self.current_char is not None and self.current_char.isalpha():
-            return Token(TokenType.NULL, result, self.line, self.column)
+            while self.current_char is not None and self.current_char.isalnum():
+                result += self.current_char
+                self.advance()
+            return Token(TokenType.ID, result, self.line, self.column)
 
         if current_type == TokenType.DEC:
             return Token(TokenType.DEC, result, self.line, self.column)

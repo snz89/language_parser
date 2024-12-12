@@ -1,5 +1,6 @@
 from parser.tokens import TokenType
 
+
 class SymbolTable:
     def __init__(self):
         self.symbols = {}
@@ -28,6 +29,7 @@ class SymbolTable:
                 return scope[name]
         return None
 
+
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
@@ -38,14 +40,16 @@ class Parser:
         if context:
             message = f"In '{context}', " + message
         raise Exception(
-            f"Syntax error at line {self.current_token.line}, column {self.current_token.column}: {message}"
+            f"Syntax error at line {self.current_token.line}, column {
+                self.current_token.column}: {message}"
         )
 
     def eat(self, token_type):
         if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
         else:
-            self.error(f"Expected {token_type.name}, found {self.current_token.type.name}")
+            self.error(f"Expected {token_type.name}, found {
+                       self.current_token.type.name}")
 
     def program(self):
         """
@@ -74,13 +78,19 @@ class Parser:
                 return  # Обрабатываем END
             self.operator_()
         if self.current_token.type != TokenType.END:
-            self.error(f"expected ';' or 'END', found '{self.current_token.type.name}'", context="operator_list")
+            self.error(f"expected ';' or 'END', found '{
+                       self.current_token.type.name}'", context="operator_list")
 
     def description(self):
         """
         <описание> ::= {<идентификатор> {, <идентификатор>} : <тип> ;}
         """
         while self.current_token.type == TokenType.ID:
+            # Проверяем валидность имени идентификатора
+            if not self.current_token.value[0].isalpha():
+                self.error(message=f"Invalid ID name: '{
+                           self.current_token.value}'")
+
             ids = self.id_list()
             self.eat(TokenType.COLON)
             type = self.type()
