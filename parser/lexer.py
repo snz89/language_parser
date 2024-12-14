@@ -1,4 +1,10 @@
-from parser.tokens import Token, TokenType
+from parser.tokens import (
+    Token,
+    keywords_table,
+    delimiters_table,
+    numbers_table,
+    identifiers_table,
+)
 
 
 class Lexer:
@@ -9,8 +15,20 @@ class Lexer:
         self.column = 1  # Текущий столбец
         self.current_char = self.text[self.pos] if self.pos < len(
             self.text) else None
+        self.text_lines = text.splitlines()
 
-    def advance(self):
+    def error(self, message) -> Exception:
+        """Вызывает исключение с сообщением об ошибке."""
+        line = self.text_lines[self.line - 1]
+        stript_line = line.strip()
+        spaces = len(line) - len(line.lstrip())
+        pointer_shift = self.column - spaces
+        raise Exception(
+            f"Syntax error at line {self.line}: {
+                message}\n    {stript_line}\n    {'^':>{pointer_shift}}"
+        )
+
+    def advance(self) -> None:
         """Перейти к следующему символу."""
         if self.current_char == "\n":
             self.line += 1
@@ -24,12 +42,12 @@ class Lexer:
         else:
             self.current_char = None
 
-    def skip_whitespace(self):
+    def skip_whitespace(self) -> None:
         """Пропустить пробелы и переносы строк."""
         while self.current_char is not None and self.current_char.isspace():
             self.advance()
 
-    def skip_comment(self):
+    def skip_comment(self) -> None:
         """Пропустить многострочный комментарий."""
         while self.current_char is not None and self.current_char != "*":
             self.advance()
@@ -38,25 +56,18 @@ class Lexer:
             if self.current_char == "/":
                 self.advance()
             else:
-                print(
-                    f"SyntaxError: unterminated multiline comment (detected at line {self.line})")
-                exit(1)
+                self.error("Unterminated multiline comment")
         else:
-            print(
-                f"SyntaxError: unterminated multiline comment (detected at line {self.line})")
-            exit(1)
+            self.error("Unterminated multiline comment")
 
-    def number(self):
-        """Считать число (целое или вещественное)."""
+    def number(self) -> Token:
+        """Считать число."""
         result = ""
         while self.current_char is not None and self.current_char.isdigit():
             result += self.current_char
             self.advance()
 
-        current_type = TokenType.DEC
-
         if self.current_char == ".":
-            current_type = TokenType.NUM_REAL
             result += self.current_char
             self.advance()
             while self.current_char is not None and self.current_char.isdigit():
@@ -64,7 +75,6 @@ class Lexer:
                 self.advance()
 
         if self.current_char is not None and (self.current_char in "eE"):
-            current_type = TokenType.NUM_REAL
             result += self.current_char
             self.advance()
             if self.current_char is not None and (self.current_char in "+-"):
@@ -74,118 +84,42 @@ class Lexer:
                 result += self.current_char
                 self.advance()
 
-        if current_type == TokenType.NUM_REAL:
-            if self.current_char is not None and (self.current_char in "eE"):
-                return Token(TokenType.NULL, result, self.line, self.column)
-            if self.current_char is not None and (self.current_char.lower() in "bhdo"):
-                return Token(TokenType.NULL, result, self.line, self.column)
-            return Token(TokenType.NUM_REAL, result, self.line, self.column)
+        if self.current_char is not None and (self.current_char.lower() in "bhdo"):
+            result += self.current_char
+            self.advance()
 
-        # Проверяем окончание числа, только если result содержит цифры
-        if len(result) > 0 and result[-1].isdigit() and self.current_char is not None:
-            if self.current_char is not None and (self.current_char.lower() == "b"):
-                current_type = TokenType.BIN
-            elif self.current_char is not None and (self.current_char.lower() == "o"):
-                current_type = TokenType.OCT
-            elif self.current_char is not None and (self.current_char.lower() == "h"):
-                current_type = TokenType.HEX
-            elif self.current_char is not None and (self.current_char.lower() == "d"):
-                current_type = TokenType.DEC
-            if current_type != TokenType.DEC:
-                result += self.current_char
-                self.advance()
-
-        # Если после числа идет буква, но не подходящее окончание, это ошибочный идентификатор
-        if current_type == TokenType.DEC and self.current_char is not None and self.current_char.isalpha():
+        # Если после числа идет буква, то это идентификатор
+        if self.current_char is not None and self.current_char.isalpha():
+            result += self.current_char
+            self.advance()
             while self.current_char is not None and self.current_char.isalnum():
                 result += self.current_char
                 self.advance()
-            return Token(TokenType.ID, result, self.line, self.column)
+            if result not in identifiers_table:
+                identifiers_table[result] = len(identifiers_table) + 1
+            return Token(4, identifiers_table[result], self.line, self.column - len(result), value=result)
 
-        if current_type == TokenType.DEC:
-            return Token(TokenType.DEC, result, self.line, self.column)
-        if current_type == TokenType.HEX:
-            return Token(TokenType.HEX, result, self.line, self.column)
-        if current_type == TokenType.OCT:
-            return Token(TokenType.OCT, result, self.line, self.column)
-        if current_type == TokenType.BIN:
-            return Token(TokenType.BIN, result, self.line, self.column)
+        if result not in numbers_table:
+            numbers_table[result] = len(numbers_table) + 1
 
-    def _id(self):
+        return Token(3, numbers_table[result], self.line, self.column - len(result), value=result)
+
+    def _id(self) -> Token:
         """Считать идентификатор или ключевое слово."""
         result = ""
         while self.current_char is not None and self.current_char.isalnum():
             result += self.current_char
             self.advance()
 
-        token_type = TokenType.ID  # По умолчанию считаем, что это идентификатор
-        # Проверяем, не является ли строка ключевым словом
-        if result.upper() == "PROGRAM":
-            token_type = TokenType.PROGRAM
-        elif result.upper() == "VAR":
-            token_type = TokenType.VAR
-        elif result.upper() == "BEGIN":
-            token_type = TokenType.BEGIN
-        elif result.upper() == "END":
-            token_type = TokenType.END
-        elif result.upper() == "INTEGER":
-            token_type = TokenType.INTEGER
-        elif result.upper() == "REAL":
-            token_type = TokenType.REAL
-        elif result.upper() == "BOOLEAN":
-            token_type = TokenType.BOOLEAN
-        elif result.upper() == "TRUE":
-            token_type = TokenType.TRUE
-        elif result.upper() == "FALSE":
-            token_type = TokenType.FALSE
-        elif result.upper() == "IF":
-            token_type = TokenType.IF
-        elif result.upper() == "THEN":
-            token_type = TokenType.THEN
-        elif result.upper() == "ELSE":
-            token_type = TokenType.ELSE
-        elif result.upper() == "FOR":
-            token_type = TokenType.FOR
-        elif result.upper() == "TO":
-            token_type = TokenType.TO
-        elif result.upper() == "DO":
-            token_type = TokenType.DO
-        elif result.upper() == "WHILE":
-            token_type = TokenType.WHILE
-        elif result.upper() == "READ":
-            token_type = TokenType.READ
-        elif result.upper() == "WRITE":
-            token_type = TokenType.WRITE
-        elif result.upper() == "AND":
-            token_type = TokenType.AND
-        elif result.upper() == "OR":
-            token_type = TokenType.OR
-        elif result.upper() == "MULT":
-            token_type = TokenType.MULT
-        elif result.upper() == "DIV":
-            token_type = TokenType.DIV
-        elif result.upper() == "PLUS":
-            token_type = TokenType.PLUS
-        elif result.upper() == "MIN":
-            token_type = TokenType.MIN
-        elif result.upper() == "NE":
-            token_type = TokenType.NE
-        elif result.upper() == "EQ":
-            token_type = TokenType.EQ
-        elif result.upper() == "LT":
-            token_type = TokenType.LT
-        elif result.upper() == "LE":
-            token_type = TokenType.LE
-        elif result.upper() == "GT":
-            token_type = TokenType.GT
-        elif result.upper() == "GE":
-            token_type = TokenType.GE
-        elif result.upper() == "AS":
-            token_type = TokenType.AS
+        # Проверяем, является ли строка ключевым словом
+        if result.upper() in keywords_table:
+            return Token(1, keywords_table[result.upper()], self.line, self.column - len(result), value=result)
+        else:
+            if result not in identifiers_table:
+                identifiers_table[result] = len(identifiers_table) + 1
+            return Token(4, identifiers_table[result], self.line, self.column - len(result), value=result)
 
-        return Token(token_type, result, self.line, self.column)
-
-    def get_next_token(self):
+    def get_next_token(self) -> Token:
         """Получить следующий токен из текста."""
         while self.current_char is not None:
             if self.current_char.isspace():
@@ -204,50 +138,25 @@ class Lexer:
             if self.current_char.isdigit():
                 return self.number()
 
-            if self.current_char == ";":
-                self.advance()
-                return Token(TokenType.SEMICOLON, ";", self.line, self.column)
-
-            if self.current_char == ",":
-                self.advance()
-                return Token(TokenType.COMMA, ",", self.line, self.column)
-
-            if self.current_char == ":":
-                self.advance()
-                return Token(TokenType.COLON, ":", self.line, self.column)
-
-            if self.current_char == "(":
-                self.advance()
-                return Token(TokenType.LPAREN, "(", self.line, self.column)
-
-            if self.current_char == ")":
-                self.advance()
-                return Token(TokenType.RPAREN, ")", self.line, self.column)
-
-            if self.current_char == "[":
-                self.advance()
-                return Token(TokenType.LBRACKET, "[", self.line, self.column)
-
-            if self.current_char == "]":
-                self.advance()
-                return Token(TokenType.RBRACKET, "]", self.line, self.column)
-
-            if self.current_char == ".":
-                self.advance()
-                return Token(TokenType.DOT, ".", self.line, self.column)
-
-            if self.current_char == "~":
-                self.advance()
-                return Token(TokenType.TILDE, "~", self.line, self.column)
+            # Проверяем ограничители
+            for delim, delim_num in delimiters_table.items():
+                if self.current_char == delim[0]:
+                    if len(delim) > 1:
+                        if self.peek() == delim[1]:
+                            self.advance()
+                            self.advance()
+                            return Token(2, delim_num, self.line, self.column - 2, value=delim)
+                    else:
+                        self.advance()
+                        return Token(2, delim_num, self.line, self.column - 1, value=delim)
 
             # Если ничего не подошло, возвращаем токен ошибки
-            token = Token(TokenType.NULL, self.current_char,
-                          self.line, self.column)
+            token = Token(0, 0, self.line, self.column,
+                          value=self.current_char)
             self.advance()
             return token
 
-        # Конец текста
-        return Token(TokenType.FIN, None, self.line, self.column)
+        return Token(0, 0, self.line, self.column)  # Конец текста
 
     def peek(self):
         """Подсмотреть следующий символ, не сдвигаясь."""
