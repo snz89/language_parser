@@ -4,7 +4,7 @@ class SymbolTable:
         self.scopes = []
 
     def enter_scope(self):
-        """Вход в новую область видимостиp."""
+        """Вход в новую область видимости."""
         self.scopes.append({})
 
     def exit_scope(self):
@@ -58,15 +58,54 @@ class Parser:
         else:
             self.current_token = None
 
-    def error(self, message, additional_shift=0) -> Exception:
+    def error(self, message, context=None):
         line = self.text_lines[self.current_token.line - 1]
         stript_line = line.strip()
-        spaces = len(line) - len(line.lstrip())
-        pointer_shift = self.current_token.column - spaces + additional_shift
+        if context:
+            message = f"In rule '{context}', " + message
         raise Exception(
             f"Syntax error at line {self.current_token.line}: {
-                message}\n    {stript_line}\n    {'^':>{pointer_shift}}"
+                message}\n    {stript_line}"
         )
+
+    def get_token_name(self, token):
+        """Вспомогательная функция для получения имени токена по его типу и значению."""
+        if token.table_num == 0:
+            return token.value
+        if token.table_num == 1:
+            try:
+                return self.lexer.keywords_table[token.lexeme_num - 1]
+            except IndexError:
+                return "unknown keyword"
+        elif token.table_num == 2:
+            try:
+                return self.lexer.rel_op_table[token.lexeme_num - 1]
+            except IndexError:
+                return "unknown rel_op"
+        elif token.table_num == 3:
+            try:
+                return self.lexer.add_ops_table[token.lexeme_num - 1]
+            except IndexError:
+                return "unknown add_op"
+        elif token.table_num == 4:
+            try:
+                return self.lexer.mul_ops_table[token.lexeme_num - 1]
+            except IndexError:
+                return "unknown mul_op"
+        elif token.table_num == 5:
+            try:
+                return self.lexer.uops_table[token.lexeme_num - 1]
+            except IndexError:
+                return "unknown uop"
+        elif token.table_num == 6:
+            try:
+                return self.lexer.delimiters_table[token.lexeme_num - 1]
+            except IndexError:
+                return "unknown delimiter"
+        elif token.table_num in (7, 8):
+            return token.value  # Для чисел и идентификаторов выводим их значение
+        else:
+            return f"({token.table_num}, {token.lexeme_num})"
 
     def eat(self, table_num, lexeme_num):
         if (
@@ -77,90 +116,58 @@ class Parser:
         else:
             # Поиск имени токена для вывода ошибки:
             if table_num == 1:
-                try:
-                    expected_token_name = self.lexer.keywords_table[lexeme_num - 1]
-                except IndexError:
-                    expected_token_name = "unknown keyword"
+                expected_token_name = (
+                    self.lexer.keywords_table[lexeme_num - 1]
+                    if lexeme_num - 1 < len(self.lexer.keywords_table)
+                    else "unknown keyword"
+                )
             elif table_num == 2:
-                try:
-                    expected_token_name = self.lexer.rel_op_table[lexeme_num - 1]
-                except IndexError:
-                    expected_token_name = "unknown rel_op"
+                expected_token_name = (
+                    self.lexer.rel_op_table[lexeme_num - 1]
+                    if lexeme_num - 1 < len(self.lexer.rel_op_table)
+                    else "unknown rel_op"
+                )
             elif table_num == 3:
-                try:
-                    expected_token_name = self.lexer.add_ops_table[lexeme_num - 1]
-                except IndexError:
-                    expected_token_name = "unknown add_op"
+                expected_token_name = (
+                    self.lexer.add_ops_table[lexeme_num - 1]
+                    if lexeme_num - 1 < len(self.lexer.add_ops_table)
+                    else "unknown add_op"
+                )
             elif table_num == 4:
-                try:
-                    expected_token_name = self.lexer.mul_ops_table[lexeme_num - 1]
-                except IndexError:
-                    expected_token_name = "unknown mul_op"
+                expected_token_name = (
+                    self.lexer.mul_ops_table[lexeme_num - 1]
+                    if lexeme_num - 1 < len(self.lexer.mul_ops_table)
+                    else "unknown mul_op"
+                )
             elif table_num == 5:
-                try:
-                    expected_token_name = self.lexer.uops_table[lexeme_num - 1]
-                except IndexError:
-                    expected_token_name = "unknown uop"
+                expected_token_name = (
+                    self.lexer.uops_table[lexeme_num - 1]
+                    if lexeme_num - 1 < len(self.lexer.uops_table)
+                    else "unknown uop"
+                )
             elif table_num == 6:
-                try:
-                    expected_token_name = self.lexer.delimiters_table[lexeme_num - 1]
-                except IndexError:
-                    expected_token_name = "unknown delimiter"
+                expected_token_name = (
+                    self.lexer.delimiters_table[lexeme_num - 1]
+                    if lexeme_num - 1 < len(self.lexer.delimiters_table)
+                    else "unknown delimiter"
+                )
             else:
                 expected_token_name = f"({table_num}, {lexeme_num})"
 
-            if self.current_token.table_num == 1:
-                try:
-                    current_token_name = self.lexer.keywords_table[
-                        self.current_token.lexeme_num - 1
-                    ]
-                except IndexError:
-                    current_token_name = "unknown keyword"
-            elif self.current_token.table_num == 2:
-                try:
-                    current_token_name = self.lexer.rel_op_table[
-                        self.current_token.lexeme_num - 1
-                    ]
-                except IndexError:
-                    current_token_name = "unknown rel_op"
-            elif self.current_token.table_num == 3:
-                try:
-                    current_token_name = self.lexer.add_ops_table[
-                        self.current_token.lexeme_num - 1
-                    ]
-                except IndexError:
-                    current_token_name = "unknown add_op"
-            elif self.current_token.table_num == 4:
-                try:
-                    current_token_name = self.lexer.mul_ops_table[
-                        self.current_token.lexeme_num - 1
-                    ]
-                except IndexError:
-                    current_token_name = "unknown mul_op"
-            elif self.current_token.table_num == 5:
-                try:
-                    current_token_name = self.lexer.uops_table[
-                        self.current_token.lexeme_num - 1
-                    ]
-                except IndexError:
-                    current_token_name = "unknown uop"
-            elif self.current_token.table_num == 6:
-                try:
-                    current_token_name = self.lexer.delimiters_table[
-                        self.current_token.lexeme_num - 1
-                    ]
-                except IndexError:
-                    current_token_name = "unknown delimiter"
-            elif self.current_token.table_num == 7:
-                current_token_name = self.current_token.value
-            elif self.current_token.table_num == 8:
-                current_token_name = self.current_token.value
-            else:
-                current_token_name = (
-                    f"({self.current_token.table_num}, {self.current_token.lexeme_num})"
-                )
+            current_token_name = self.get_token_name(self.current_token)
 
-            self.error(f"Expected {expected_token_name}, found {current_token_name}")
+            if (table_num, lexeme_num) == (
+                6,
+                self.delimiters_dict[";"],
+            ):
+                # Если ожидался конец составного оператора, но нашелся другой разделитель, указываем на него
+                self.error(
+                    f"Expected '{expected_token_name}', found '{current_token_name}'"
+                )
+            else:
+                self.error(
+                    f"Expected '{expected_token_name}', found '{current_token_name}'"
+                )
 
     def program(self):
         """
@@ -207,7 +214,7 @@ class Parser:
             type_token = self.type()
             for id_token in ids:
                 if not self.symbol_table.define(id_token.value, type_token):
-                    self.error(f"Variable '{id_token.value}' already declared", -2)
+                    self.error(f"Variable '{id_token.value}' already declared")
             self.eat(6, self.delimiters_dict[";"])
 
     def id_list(self):
@@ -217,7 +224,8 @@ class Parser:
         id_tokens = [self.current_token]
         if not self.current_token.value[0].isalpha():
             self.error(
-                f"Identifier '{self.current_token.value}' must start with a letter"
+                f"Identifier '{self.current_token.value}' must start with a letter",
+                context="id_list",
             )
         self.eat(8, self.current_token.lexeme_num)
         while (
@@ -228,7 +236,8 @@ class Parser:
             id_tokens.append(self.current_token)
             if not self.current_token.value[0].isalpha():
                 self.error(
-                    f"Identifier '{self.current_token.value}' must start with a letter"
+                    f"Identifier '{self.current_token.value}' must start with a letter",
+                    context="id_list",
                 )
             self.eat(8, self.current_token.lexeme_num)
         return id_tokens
@@ -307,7 +316,7 @@ class Parser:
         id_token = self.current_token
         self.eat(8, self.current_token.lexeme_num)
         if not self.symbol_table.lookup(id_token.value):
-            self.error(f"Variable '{id_token.value}' not declared", -2)
+            self.error(f"Variable '{id_token.value}' not declared")
         self.eat(1, self.keywords_dict["as"])
         self.expression()
 
@@ -364,6 +373,14 @@ class Parser:
             else:
                 self.eat(6, self.delimiters_dict[":"])
             self.operator_()
+        if (
+            self.current_token.table_num != 6
+            or self.current_token.lexeme_num != self.delimiters_dict["]"]
+        ):
+            self.error(
+                f"Expected ']', found '{self.get_token_name(self.current_token)}'",
+                context="compound",
+            )
         self.symbol_table.exit_scope()  # Выходим из области видимости составного оператора
         self.eat(6, self.delimiters_dict["]"])
 
@@ -376,7 +393,7 @@ class Parser:
         id_token = self.current_token
         self.eat(8, self.current_token.lexeme_num)
         if not self.symbol_table.lookup(id_token.value):
-            self.error(f"Variable '{id_token.value}' not declared", -2)
+            self.error(f"Variable '{id_token.value}' not declared")
         while (
             self.current_token.table_num == 6
             and self.current_token.lexeme_num == self.delimiters_dict[","]
@@ -385,7 +402,7 @@ class Parser:
             id_token = self.current_token
             self.eat(8, self.current_token.lexeme_num)
             if not self.symbol_table.lookup(id_token.value):
-                self.error(f"Variable '{id_token.value}' not declared", -2)
+                self.error(f"Variable '{id_token.value}' not declared")
         self.eat(6, self.delimiters_dict[")"])
 
     def output_op(self):
@@ -465,7 +482,7 @@ class Parser:
             id_token = self.current_token
             self.eat(8, self.current_token.lexeme_num)
             if not self.symbol_table.lookup(id_token.value):
-                self.error(f"Variable '{id_token.value}' not declared", -2)
+                self.error(f"Variable '{id_token.value}' not declared")
         elif self.current_token.table_num == 7:
             self.number()
         elif self.current_token.table_num == 1 and (
@@ -494,7 +511,66 @@ class Parser:
         <число> ::= <целое> | <действительное>
         """
         if self.current_token.table_num == 7:
+            number_token = self.current_token
+            number_value = number_token.value
             self.eat(7, self.current_token.lexeme_num)
+
+            if (
+                number_value.endswith("b")
+                and number_value.startswith("0")
+                and len(number_value) > 2
+            ):
+                self.error(f"Invalid binary number '{number_value}'", context="number")
+            elif (
+                number_value.endswith("o")
+                and number_value.startswith("0")
+                and len(number_value) > 2
+            ):
+                self.error(f"Invalid octal number '{number_value}'", context="number")
+            elif (
+                number_value.endswith("h")
+                and number_value.startswith("0")
+                and len(number_value) > 2
+            ):
+                self.error(
+                    f"Invalid hexadecimal number '{number_value}'", context="number"
+                )
+            elif (
+                number_value.endswith("d")
+                and number_value.startswith("0")
+                and len(number_value) > 2
+            ):
+                self.error(f"Invalid decimal number '{number_value}'", context="number")
+            elif any(
+                c not in "01" for c in number_value[:-1]
+            ) and number_value.endswith("b"):
+                self.error(f"Invalid binary number '{number_value}'", context="number")
+            elif any(
+                c not in "01234567" for c in number_value[:-1]
+            ) and number_value.endswith("o"):
+                self.error(f"Invalid octal number '{number_value}'", context="number")
+            elif any(
+                c not in "0123456789abcdefABCDEF" for c in number_value[:-1]
+            ) and number_value.endswith("h"):
+                self.error(
+                    f"Invalid hexadecimal number '{number_value}'", context="number"
+                )
+            elif any(
+                c not in "0123456789" for c in number_value[:-1]
+            ) and number_value.endswith("d"):
+                self.error(f"Invalid decimal number '{number_value}'", context="number")
+            elif any(c not in "0123456789.eE+-" for c in number_value) and (
+                "e" in number_value or "E" in number_value or "." in number_value
+            ):
+                self.error(f"Invalid float number '{number_value}'", context="number")
+            elif (
+                any(c not in "0123456789" for c in number_value)
+                and not (
+                    "e" in number_value or "E" in number_value or "." in number_value
+                )
+                and (number_value[-1] not in "bohd")
+            ):
+                self.error(f"Invalid decimal number '{number_value}'", context="number")
         else:
             self.error("Expected number")
 

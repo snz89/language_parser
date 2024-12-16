@@ -11,7 +11,7 @@ def main():
         lexer = Lexer(text)
         parser = Parser(lexer)
         parser.parse()
-        print("Yeah!")
+        print("yep")
     except Exception as e:
         print(e)
 

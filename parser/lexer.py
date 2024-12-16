@@ -18,6 +18,7 @@ class Lexer:
         self.column = 1
         self.current_char = self.text[self.pos] if self.pos < len(self.text) else None
         self.tokens = []
+        self.text_lines = self.text.split("\n")
 
         # Таблица служебных слов (n = 1)
         self.keywords_table = [
@@ -117,41 +118,51 @@ class Lexer:
 
     def parse_number(self):
         """Разбор числовых литералов, включая поддержку суффиксов."""
-        start = self.pos
-        while self.current_char and self.current_char.isdigit():
+        text = ""
+        has_decimal_point = False
+        is_float = False
+
+        while self.current_char and (self.current_char.isdigit() or self.current_char.upper() in 'ABCDEF' or self.current_char == '.'):
+            if self.current_char == '.':
+                if has_decimal_point:
+                    # Две десятичные точки - считаем за идентификатор
+                    is_float = False
+                    break
+                has_decimal_point = True
+                is_float = True
+            text += self.current_char
             self.advance()
-        # Проверка на десятичную точку
-        if self.current_char == ".":
+
+        if self.current_char and self.current_char.upper() == 'E':
+            is_float = True
+            text += self.current_char
             self.advance()
-            while self.current_char and self.current_char.isdigit():
-                self.advance()
-        # Проверка на экспоненту
-        if self.current_char and self.current_char.upper() == "E":
-            self.advance()
-            if self.current_char in "+-":
+            if self.current_char in '+-':
+                text += self.current_char
                 self.advance()
             if self.current_char and self.current_char.isdigit():
                 while self.current_char and self.current_char.isdigit():
+                    text += self.current_char
                     self.advance()
             else:
-                # Некорректная экспонента, обработать как ошибку или пропустить
-                pass
-        # Проверка на суффиксы (например, 'd' для десятичных, 'b' для двоичных, 'h' для шестнадцатеричных)
-        if self.current_char and self.current_char.lower() in "bohhd":
+                is_float = False
+
+        suffix = ""
+        if self.current_char and self.current_char.lower() in 'bohd':
+            suffix = self.current_char.lower()
+            text += self.current_char
             self.advance()
 
-        # Если после числа идет буква, то это идентификатор
-        if self.current_char is not None and self.current_char.isalpha():
-            self.advance()
+        # Если после числа идет буква, и это не суффикс системы счисления, то это идентификатор
+        if self.current_char is not None and self.current_char.isalpha() and len(suffix) != 1:
             while self.current_char is not None and self.current_char.isalnum():
+                text += self.current_char
                 self.advance()
-            text = self.text[start : self.pos]
             if text not in self.identifiers_table:
                 self.identifiers_table.append(text)
             self.add_token(8, self.identifiers_table.index(text) + 1, value=text)
             return
-
-        text = self.text[start : self.pos]
+        
         if text not in self.numbers_table:
             self.numbers_table.append(text)
         self.add_token(7, self.numbers_table.index(text) + 1, value=text)
@@ -166,6 +177,10 @@ class Lexer:
                 if self.current_char == "/":
                     self.advance()
                     return
+                else:
+                    raise Exception(
+                        f"Syntax error at line {self.line}: An incomplete multi-line comment\n    {self.text_lines[self.line - 1].strip()}"
+                    )
             else:
                 self.advance()
 
