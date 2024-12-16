@@ -1,19 +1,10 @@
-from parser.tokens import (
-    Token,
-    keywords_table,
-    delimiters_table,
-    numbers_table,
-    identifiers_table,
-)
-
-
 class SymbolTable:
     def __init__(self):
         self.symbols = {}
         self.scopes = []
 
     def enter_scope(self):
-        """Вход в новую область видимости."""
+        """Вход в новую область видимостиp."""
         self.scopes.append({})
 
     def exit_scope(self):
@@ -37,13 +28,37 @@ class SymbolTable:
 
 
 class Parser:
-    def __init__(self, lexer, text):
+    def __init__(self, lexer):
         self.lexer = lexer
-        self.current_token = self.lexer.get_next_token()
+        self.tokens = lexer.tokenize()  # Получаем список токенов сразу
+        self.current_token_index = 0
+        self.current_token = (
+            self.tokens[self.current_token_index] if self.tokens else None
+        )
         self.symbol_table = SymbolTable()
-        self.text_lines = text.splitlines()
+        self.text_lines = lexer.text.split("\n")
 
-    def error(self, message, additional_shift = 0):
+        # Словари для быстрого доступа к номерам лексем по их именам
+        self.keywords_dict = {
+            name: i + 1 for i, name in enumerate(lexer.keywords_table)
+        }
+        self.rel_op_dict = {name: i + 1 for i, name in enumerate(lexer.rel_op_table)}
+        self.add_ops_dict = {name: i + 1 for i, name in enumerate(lexer.add_ops_table)}
+        self.mul_ops_dict = {name: i + 1 for i, name in enumerate(lexer.mul_ops_table)}
+        self.uops_dict = {name: i + 1 for i, name in enumerate(lexer.uops_table)}
+        self.delimiters_dict = {
+            name: i + 1 for i, name in enumerate(lexer.delimiters_table)
+        }
+
+    def advance(self):
+        """Переход к следующему токену."""
+        self.current_token_index += 1
+        if self.current_token_index < len(self.tokens):
+            self.current_token = self.tokens[self.current_token_index]
+        else:
+            self.current_token = None
+
+    def error(self, message, additional_shift=0) -> Exception:
         line = self.text_lines[self.current_token.line - 1]
         stript_line = line.strip()
         spaces = len(line) - len(line.lstrip())
@@ -54,57 +69,115 @@ class Parser:
         )
 
     def eat(self, table_num, lexeme_num):
-        if self.current_token.table_num == table_num and self.current_token.lexeme_num == lexeme_num:
-            self.current_token = self.lexer.get_next_token()
+        if (
+            self.current_token.table_num == table_num
+            and self.current_token.lexeme_num == lexeme_num
+        ):
+            self.advance()
         else:
             # Поиск имени токена для вывода ошибки:
             if table_num == 1:
-                for name, num in keywords_table.items():
-                    if num == lexeme_num:
-                        expected_token_name = name
-                        break
+                try:
+                    expected_token_name = self.lexer.keywords_table[lexeme_num - 1]
+                except IndexError:
+                    expected_token_name = "unknown keyword"
             elif table_num == 2:
-                for name, num in delimiters_table.items():
-                    if num == lexeme_num:
-                        expected_token_name = name
-                        break
+                try:
+                    expected_token_name = self.lexer.rel_op_table[lexeme_num - 1]
+                except IndexError:
+                    expected_token_name = "unknown rel_op"
+            elif table_num == 3:
+                try:
+                    expected_token_name = self.lexer.add_ops_table[lexeme_num - 1]
+                except IndexError:
+                    expected_token_name = "unknown add_op"
+            elif table_num == 4:
+                try:
+                    expected_token_name = self.lexer.mul_ops_table[lexeme_num - 1]
+                except IndexError:
+                    expected_token_name = "unknown mul_op"
+            elif table_num == 5:
+                try:
+                    expected_token_name = self.lexer.uops_table[lexeme_num - 1]
+                except IndexError:
+                    expected_token_name = "unknown uop"
+            elif table_num == 6:
+                try:
+                    expected_token_name = self.lexer.delimiters_table[lexeme_num - 1]
+                except IndexError:
+                    expected_token_name = "unknown delimiter"
             else:
                 expected_token_name = f"({table_num}, {lexeme_num})"
 
             if self.current_token.table_num == 1:
-                for name, num in keywords_table.items():
-                    if num == self.current_token.lexeme_num:
-                        current_token_name = name
-                        break
+                try:
+                    current_token_name = self.lexer.keywords_table[
+                        self.current_token.lexeme_num - 1
+                    ]
+                except IndexError:
+                    current_token_name = "unknown keyword"
             elif self.current_token.table_num == 2:
-                for name, num in delimiters_table.items():
-                    if num == self.current_token.lexeme_num:
-                        current_token_name = name
-                        break
+                try:
+                    current_token_name = self.lexer.rel_op_table[
+                        self.current_token.lexeme_num - 1
+                    ]
+                except IndexError:
+                    current_token_name = "unknown rel_op"
             elif self.current_token.table_num == 3:
-                current_token_name = self.current_token.value
+                try:
+                    current_token_name = self.lexer.add_ops_table[
+                        self.current_token.lexeme_num - 1
+                    ]
+                except IndexError:
+                    current_token_name = "unknown add_op"
             elif self.current_token.table_num == 4:
+                try:
+                    current_token_name = self.lexer.mul_ops_table[
+                        self.current_token.lexeme_num - 1
+                    ]
+                except IndexError:
+                    current_token_name = "unknown mul_op"
+            elif self.current_token.table_num == 5:
+                try:
+                    current_token_name = self.lexer.uops_table[
+                        self.current_token.lexeme_num - 1
+                    ]
+                except IndexError:
+                    current_token_name = "unknown uop"
+            elif self.current_token.table_num == 6:
+                try:
+                    current_token_name = self.lexer.delimiters_table[
+                        self.current_token.lexeme_num - 1
+                    ]
+                except IndexError:
+                    current_token_name = "unknown delimiter"
+            elif self.current_token.table_num == 7:
+                current_token_name = self.current_token.value
+            elif self.current_token.table_num == 8:
                 current_token_name = self.current_token.value
             else:
-                current_token_name = f"({self.current_token.table_num}, {
-                    self.current_token.lexeme_num})"
-            self.error(f"Expected {expected_token_name}, found {
-                       current_token_name}")
+                current_token_name = (
+                    f"({self.current_token.table_num}, {self.current_token.lexeme_num})"
+                )
+
+            self.error(f"Expected {expected_token_name}, found {current_token_name}")
 
     def program(self):
         """
         <программа> ::= program var <описание> begin <оператор> {; <оператор>} end.
         """
-        self.eat(1, keywords_table["PROGRAM"])
-        self.eat(1, keywords_table["VAR"])
+        self.eat(1, self.keywords_dict["program"])
+        self.eat(1, self.keywords_dict["var"])
         self.symbol_table.enter_scope()  # Входим в глобальную область видимости
         self.description()
-        self.eat(1, keywords_table["BEGIN"])
+        self.eat(1, self.keywords_dict["begin"])
         self.operator_list()
-        self.eat(1, keywords_table["END"])
-        self.eat(2, delimiters_table["."])
+        self.eat(1, self.keywords_dict["end"])
+        self.eat(6, self.delimiters_dict["."])
         self.symbol_table.exit_scope()  # Выходим из глобальной области видимости
-        if not (self.current_token.table_num == 0 and self.current_token.lexeme_num == 0):
+        if not (
+            self.current_token.table_num == 0 and self.current_token.lexeme_num == 0
+        ):
             self.error("Expected end of program")
 
     def operator_list(self):
@@ -112,9 +185,15 @@ class Parser:
         <оператор> {; <оператор>}
         """
         self.operator_()
-        while self.current_token.table_num == 2 and self.current_token.lexeme_num == delimiters_table[";"]:
-            self.eat(2, delimiters_table[";"])
-            if self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["END"]:
+        while (
+            self.current_token.table_num == 6
+            and self.current_token.lexeme_num == self.delimiters_dict[";"]
+        ):
+            self.eat(6, self.delimiters_dict[";"])
+            if (
+                self.current_token.table_num == 1
+                and self.current_token.lexeme_num == self.keywords_dict["end"]
+            ):
                 return  # Обрабатываем END
             self.operator_()
 
@@ -122,17 +201,14 @@ class Parser:
         """
         <описание> ::= {<идентификатор> {, <идентификатор>} : <тип> ;}
         """
-        while self.current_token.table_num == 4:
-            if not self.current_token.value.isalpha():
-                self.error(f"Invalid ID name: '{self.current_token.value}'")
-
+        while self.current_token.table_num == 8:
             ids = self.id_list()
-            self.eat(2, delimiters_table[":"])
-            type = self.type()
+            self.eat(6, self.delimiters_dict[":"])
+            type_token = self.type()
             for id_token in ids:
-                if not self.symbol_table.define(id_token.value, type):
-                    self.error(f"Variable '{id_token.value}' already declared")
-            self.eat(2, delimiters_table[";"])
+                if not self.symbol_table.define(id_token.value, type_token):
+                    self.error(f"Variable '{id_token.value}' already declared", -2)
+            self.eat(6, self.delimiters_dict[";"])
 
     def id_list(self):
         """
@@ -140,34 +216,48 @@ class Parser:
         """
         id_tokens = [self.current_token]
         if not self.current_token.value[0].isalpha():
-            self.error(f"Identifier '{
-                       self.current_token.value}' must start with a letter")
-        self.eat(4, self.current_token.lexeme_num)
-        while self.current_token.table_num == 2 and self.current_token.lexeme_num == delimiters_table[","]:
-            self.eat(2, delimiters_table[","])
+            self.error(
+                f"Identifier '{self.current_token.value}' must start with a letter"
+            )
+        self.eat(8, self.current_token.lexeme_num)
+        while (
+            self.current_token.table_num == 6
+            and self.current_token.lexeme_num == self.delimiters_dict[","]
+        ):
+            self.eat(6, self.delimiters_dict[","])
             id_tokens.append(self.current_token)
             if not self.current_token.value[0].isalpha():
-                self.error(f"Identifier '{
-                           self.current_token.value}' must start with a letter")
-            self.eat(4, self.current_token.lexeme_num)
+                self.error(
+                    f"Identifier '{self.current_token.value}' must start with a letter"
+                )
+            self.eat(8, self.current_token.lexeme_num)
         return id_tokens
 
     def type(self):
         """
         <тип> ::= integer | real | boolean
         """
-        if self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["INTEGER"]:
-            type = self.current_token
-            self.eat(1, keywords_table["INTEGER"])
-            return type
-        elif self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["REAL"]:
-            type = self.current_token
-            self.eat(1, keywords_table["REAL"])
-            return type
-        elif self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["BOOLEAN"]:
-            type = self.current_token
-            self.eat(1, keywords_table["BOOLEAN"])
-            return type
+        if (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["integer"]
+        ):
+            type_token = self.current_token
+            self.eat(1, self.keywords_dict["integer"])
+            return type_token
+        elif (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["real"]
+        ):
+            type_token = self.current_token
+            self.eat(1, self.keywords_dict["real"])
+            return type_token
+        elif (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["boolean"]
+        ):
+            type_token = self.current_token
+            self.eat(1, self.keywords_dict["boolean"])
+            return type_token
         else:
             self.error("Expected type (integer, real, boolean)")
 
@@ -175,19 +265,37 @@ class Parser:
         """
         <оператор> ::= <присваивания> | <условный> | <фиксированного_цикла> | <условного_цикла> | <составной> | <ввода> | <вывода>
         """
-        if self.current_token.table_num == 4:
+        if self.current_token.table_num == 8:
             self.assignment()
-        elif self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["IF"]:
+        elif (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["if"]
+        ):
             self.conditional()
-        elif self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["FOR"]:
+        elif (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["for"]
+        ):
             self.fixed_loop()
-        elif self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["WHILE"]:
+        elif (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["while"]
+        ):
             self.conditional_loop()
-        elif self.current_token.table_num == 2 and self.current_token.lexeme_num == delimiters_table["["]:
+        elif (
+            self.current_token.table_num == 6
+            and self.current_token.lexeme_num == self.delimiters_dict["["]
+        ):
             self.compound()
-        elif self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["READ"]:
+        elif (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["read"]
+        ):
             self.input_op()
-        elif self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["WRITE"]:
+        elif (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["write"]
+        ):
             self.output_op()
         else:
             self.error("Expected operator")
@@ -197,34 +305,37 @@ class Parser:
         <присваивания> ::= <идентификатор> as <выражение>
         """
         id_token = self.current_token
-        self.eat(4, self.current_token.lexeme_num)
+        self.eat(8, self.current_token.lexeme_num)
         if not self.symbol_table.lookup(id_token.value):
             self.error(f"Variable '{id_token.value}' not declared", -2)
-        self.eat(1, keywords_table["AS"])
+        self.eat(1, self.keywords_dict["as"])
         self.expression()
 
     def conditional(self):
         """
         <условный> ::= if <выражение> then <оператор> [ else <оператор>]
         """
-        self.eat(1, keywords_table["IF"])
+        self.eat(1, self.keywords_dict["if"])
         self.expression()
-        self.eat(1, keywords_table["THEN"])
+        self.eat(1, self.keywords_dict["then"])
         self.operator_()
-        if self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["ELSE"]:
-            self.eat(1, keywords_table["ELSE"])
+        if (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["else"]
+        ):
+            self.eat(1, self.keywords_dict["else"])
             self.operator_()
 
     def fixed_loop(self):
         """
         <фиксированного_цикла> ::= for <присваивания> to <выражение> do <оператор>
         """
-        self.eat(1, keywords_table["FOR"])
+        self.eat(1, self.keywords_dict["for"])
         self.symbol_table.enter_scope()  # Входим в область видимости цикла
         self.assignment()
-        self.eat(1, keywords_table["TO"])
+        self.eat(1, self.keywords_dict["to"])
         self.expression()
-        self.eat(1, keywords_table["DO"])
+        self.eat(1, self.keywords_dict["do"])
         self.operator_()
         self.symbol_table.exit_scope()  # Выходим из области видимости цикла
 
@@ -232,75 +343,86 @@ class Parser:
         """
         <условного_цикла> ::= while <выражение> do <оператор>
         """
-        self.eat(1, keywords_table["WHILE"])
+        self.eat(1, self.keywords_dict["while"])
         self.expression()
-        self.eat(1, keywords_table["DO"])
+        self.eat(1, self.keywords_dict["do"])
         self.operator_()
 
     def compound(self):
         """
         <составной> ::= «[» <оператор> { ( : | \n) <оператор> } «]»
         """
-        self.eat(2, delimiters_table["["])
+        self.eat(6, self.delimiters_dict["["])
         self.symbol_table.enter_scope()  # Входим в область видимости составного оператора
         self.operator_()
-        while self.current_token.table_num == 2 and (self.current_token.lexeme_num == delimiters_table[":"] or self.current_token.lexeme_num == delimiters_table[";"]):
-            if self.current_token.lexeme_num == delimiters_table[";"]:
-                self.eat(2, delimiters_table[";"])
+        while self.current_token.table_num == 6 and (
+            self.current_token.lexeme_num == self.delimiters_dict[":"]
+            or self.current_token.lexeme_num == self.delimiters_dict[";"]
+        ):
+            if self.current_token.lexeme_num == self.delimiters_dict[";"]:
+                self.eat(6, self.delimiters_dict[";"])
             else:
-                self.eat(2, delimiters_table[":"])
+                self.eat(6, self.delimiters_dict[":"])
             self.operator_()
         self.symbol_table.exit_scope()  # Выходим из области видимости составного оператора
-        self.eat(2, delimiters_table["]"])
+        self.eat(6, self.delimiters_dict["]"])
 
     def input_op(self):
         """
         <ввода> ::= read «(»<идентификатор> {, <идентификатор> } «)»
         """
-        self.eat(1, keywords_table["READ"])
-        self.eat(2, delimiters_table["("])
+        self.eat(1, self.keywords_dict["read"])
+        self.eat(6, self.delimiters_dict["("])
         id_token = self.current_token
-        self.eat(4, self.current_token.lexeme_num)
+        self.eat(8, self.current_token.lexeme_num)
         if not self.symbol_table.lookup(id_token.value):
             self.error(f"Variable '{id_token.value}' not declared", -2)
-        while self.current_token.table_num == 2 and self.current_token.lexeme_num == delimiters_table[","]:
-            self.eat(2, delimiters_table[","])
+        while (
+            self.current_token.table_num == 6
+            and self.current_token.lexeme_num == self.delimiters_dict[","]
+        ):
+            self.eat(6, self.delimiters_dict[","])
             id_token = self.current_token
-            self.eat(4, self.current_token.lexeme_num)
+            self.eat(8, self.current_token.lexeme_num)
             if not self.symbol_table.lookup(id_token.value):
                 self.error(f"Variable '{id_token.value}' not declared", -2)
-        self.eat(2, delimiters_table[")"])
+        self.eat(6, self.delimiters_dict[")"])
 
     def output_op(self):
         """
         <вывода> ::= write «(»<выражение> {, <выражение> } «)»
         """
-        self.eat(1, keywords_table["WRITE"])
-        self.eat(2, delimiters_table["("])
+        self.eat(1, self.keywords_dict["write"])
+        self.eat(6, self.delimiters_dict["("])
         self.expression()
-        while self.current_token.table_num == 2 and self.current_token.lexeme_num == delimiters_table[","]:
-            self.eat(2, delimiters_table[","])
+        while (
+            self.current_token.table_num == 6
+            and self.current_token.lexeme_num == self.delimiters_dict[","]
+        ):
+            self.eat(6, self.delimiters_dict[","])
             self.expression()
-        self.eat(2, delimiters_table[")"])
+        self.eat(6, self.delimiters_dict[")"])
 
     def expression(self):
         """
         <выражение> ::= <сумма> | <выражение> (<>|=|<|<=|>|>=) <сумма>
         """
         self.sum()
-        while self.current_token.table_num == 1 and self.current_token.lexeme_num in (keywords_table["NE"], keywords_table["EQ"], keywords_table["LT"], keywords_table["LE"], keywords_table["GT"], keywords_table["GE"]):
-            if self.current_token.lexeme_num == keywords_table["NE"]:
-                self.eat(1, keywords_table["NE"])
-            elif self.current_token.lexeme_num == keywords_table["EQ"]:
-                self.eat(1, keywords_table["EQ"])
-            elif self.current_token.lexeme_num == keywords_table["LT"]:
-                self.eat(1, keywords_table["LT"])
-            elif self.current_token.lexeme_num == keywords_table["LE"]:
-                self.eat(1, keywords_table["LE"])
-            elif self.current_token.lexeme_num == keywords_table["GT"]:
-                self.eat(1, keywords_table["GT"])
-            elif self.current_token.lexeme_num == keywords_table["GE"]:
-                self.eat(1, keywords_table["GE"])
+        while self.current_token.table_num == 2:
+            if self.current_token.lexeme_num == self.rel_op_dict["NE"]:
+                self.eat(2, self.rel_op_dict["NE"])
+            elif self.current_token.lexeme_num == self.rel_op_dict["EQ"]:
+                self.eat(2, self.rel_op_dict["EQ"])
+            elif self.current_token.lexeme_num == self.rel_op_dict["LT"]:
+                self.eat(2, self.rel_op_dict["LT"])
+            elif self.current_token.lexeme_num == self.rel_op_dict["LE"]:
+                self.eat(2, self.rel_op_dict["LE"])
+            elif self.current_token.lexeme_num == self.rel_op_dict["GT"]:
+                self.eat(2, self.rel_op_dict["GT"])
+            elif self.current_token.lexeme_num == self.rel_op_dict["GE"]:
+                self.eat(2, self.rel_op_dict["GE"])
+            else:
+                break
             self.sum()
 
     def sum(self):
@@ -308,13 +430,15 @@ class Parser:
         <сумма> ::= <произведение> { (+ | - | or) <произведение>}
         """
         self.product()
-        while self.current_token.table_num == 1 and self.current_token.lexeme_num in (keywords_table["PLUS"], keywords_table["MIN"], keywords_table["OR"]):
-            if self.current_token.lexeme_num == keywords_table["PLUS"]:
-                self.eat(1, keywords_table["PLUS"])
-            elif self.current_token.lexeme_num == keywords_table["MIN"]:
-                self.eat(1, keywords_table["MIN"])
-            elif self.current_token.lexeme_num == keywords_table["OR"]:
-                self.eat(1, keywords_table["OR"])
+        while self.current_token.table_num == 3:
+            if self.current_token.lexeme_num == self.add_ops_dict["plus"]:
+                self.eat(3, self.add_ops_dict["plus"])
+            elif self.current_token.lexeme_num == self.add_ops_dict["min"]:
+                self.eat(3, self.add_ops_dict["min"])
+            elif self.current_token.lexeme_num == self.add_ops_dict["or"]:
+                self.eat(3, self.add_ops_dict["or"])
+            else:
+                break
             self.product()
 
     def product(self):
@@ -322,46 +446,55 @@ class Parser:
         <произведение> ::= <множитель> { (* | / | and) <множитель>}
         """
         self.multiplier()
-        while self.current_token.table_num == 1 and self.current_token.lexeme_num in (keywords_table["MULT"], keywords_table["DIV"], keywords_table["AND"]):
-            if self.current_token.lexeme_num == keywords_table["MULT"]:
-                self.eat(1, keywords_table["MULT"])
-            elif self.current_token.lexeme_num == keywords_table["DIV"]:
-                self.eat(1, keywords_table["DIV"])
-            elif self.current_token.lexeme_num == keywords_table["AND"]:
-                self.eat(1, keywords_table["AND"])
+        while self.current_token.table_num == 4:
+            if self.current_token.lexeme_num == self.mul_ops_dict["mult"]:
+                self.eat(4, self.mul_ops_dict["mult"])
+            elif self.current_token.lexeme_num == self.mul_ops_dict["div"]:
+                self.eat(4, self.mul_ops_dict["div"])
+            elif self.current_token.lexeme_num == self.mul_ops_dict["and"]:
+                self.eat(4, self.mul_ops_dict["and"])
+            else:
+                break
             self.multiplier()
 
     def multiplier(self):
         """
         <множитель> ::= <идентификатор> | <число> | <логическая_константа> | not <множитель> | «(»<выражение>«)»
         """
-        if self.current_token.table_num == 4:
+        if self.current_token.table_num == 8:
             id_token = self.current_token
-            self.eat(4, self.current_token.lexeme_num)
+            self.eat(8, self.current_token.lexeme_num)
             if not self.symbol_table.lookup(id_token.value):
                 self.error(f"Variable '{id_token.value}' not declared", -2)
-        elif self.current_token.table_num == 3:
+        elif self.current_token.table_num == 7:
             self.number()
-        elif self.current_token.table_num == 1 and self.current_token.lexeme_num in (keywords_table["TRUE"], keywords_table["FALSE"]):
+        elif self.current_token.table_num == 1 and (
+            self.current_token.lexeme_num == self.keywords_dict["true"]
+            or self.current_token.lexeme_num == self.keywords_dict["false"]
+        ):
             self.logical_constant()
-        elif self.current_token.table_num == 2 and self.current_token.lexeme_num == delimiters_table["~"]:
-            self.eat(2, delimiters_table["~"])
+        elif (
+            self.current_token.table_num == 5
+            and self.current_token.lexeme_num == self.uops_dict["~"]
+        ):
+            self.eat(5, self.uops_dict["~"])
             self.multiplier()
-        elif self.current_token.table_num == 2 and self.current_token.lexeme_num == delimiters_table["("]:
-            self.eat(2, delimiters_table["("])
+        elif (
+            self.current_token.table_num == 6
+            and self.current_token.lexeme_num == self.delimiters_dict["("]
+        ):
+            self.eat(6, self.delimiters_dict["("])
             self.expression()
-            self.eat(2, delimiters_table[")"])
+            self.eat(6, self.delimiters_dict[")"])
         else:
-            self.error(
-                "Expected identifier, number, logical constant, 'not', or '('"
-            )
+            self.error("Expected identifier, number, logical constant, 'not', or '('")
 
     def number(self):
         """
         <число> ::= <целое> | <действительное>
         """
-        if self.current_token.table_num == 3:
-            self.eat(3, self.current_token.lexeme_num)
+        if self.current_token.table_num == 7:
+            self.eat(7, self.current_token.lexeme_num)
         else:
             self.error("Expected number")
 
@@ -369,14 +502,23 @@ class Parser:
         """
         <логическая_константа> ::= true | false
         """
-        if self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["TRUE"]:
-            self.eat(1, keywords_table["TRUE"])
-        elif self.current_token.table_num == 1 and self.current_token.lexeme_num == keywords_table["FALSE"]:
-            self.eat(1, keywords_table["FALSE"])
+        if (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["true"]
+        ):
+            self.eat(1, self.keywords_dict["true"])
+        elif (
+            self.current_token.table_num == 1
+            and self.current_token.lexeme_num == self.keywords_dict["false"]
+        ):
+            self.eat(1, self.keywords_dict["false"])
         else:
             self.error("Expected 'true' or 'false'")
 
     def parse(self):
+        """Запуск синтаксического анализа."""
         self.program()
-        if not (self.current_token.table_num == 0 and self.current_token.lexeme_num == 0):
+        if not (
+            self.current_token.table_num == 0 and self.current_token.lexeme_num == 0
+        ):
             self.error("Expected end of program")

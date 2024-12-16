@@ -1,13 +1,5 @@
-from parser.lexer import Lexer
-from parser.parser import Parser
-
-
-def print_tokens(text):
-    lexer = Lexer(text)
-    token = lexer.get_next_token()
-    while token.table_num != 0:
-        print(f"{token}\t--> '{token.value}'")
-        token = lexer.get_next_token()
+from .lexer import Lexer
+from .parser import Parser
 
 
 def main():
@@ -17,7 +9,7 @@ def main():
 
     try:
         lexer = Lexer(text)
-        parser = Parser(lexer, text)
+        parser = Parser(lexer)
         parser.parse()
         print("Yeah!")
     except Exception as e:
