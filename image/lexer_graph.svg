@@ -1,0 +1,317 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080pt" height="424pt" viewBox="0.00 0.00 1080.00 423.91">
+<g id="graph0" class="graph" transform="scale(0.423101 0.423101) rotate(0) translate(4 997.92)">
+<title>LexerFSM</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-997.92 2548.58,-997.92 2548.58,4 -4,4"/>
+<!-- H -->
+<g id="node1" class="node">
+<title>H</title>
+<ellipse fill="none" stroke="black" cx="52.68" cy="-346.12" rx="45.1" ry="45.1"/>
+<text text-anchor="middle" x="52.68" y="-341.92" font-family="Times,serif" font-size="14.00">H (Start)</text>
+</g>
+<!-- H&#45;&gt;H -->
+<g id="edge3" class="edge">
+<title>H-&gt;H</title>
+<path fill="none" stroke="black" d="M13.33,-369.09C-4.04,-388.65 9.08,-409.22 52.68,-409.22 89.13,-409.22 104.27,-394.85 98.11,-378.71"/>
+<polygon fill="black" stroke="black" points="101.14,-376.95 92.83,-370.37 95.23,-380.69 101.14,-376.95"/>
+<text text-anchor="middle" x="52.68" y="-413.42" font-family="Times,serif" font-size="14.00">Пробел, '\n', '\r', '\t'</text>
+</g>
+<!-- NUM_START -->
+<g id="node2" class="node">
+<title>NUM_START</title>
+<ellipse fill="none" stroke="black" cx="577.58" cy="-612.12" rx="68.98" ry="68.98"/>
+<text text-anchor="middle" x="577.58" y="-607.92" font-family="Times,serif" font-size="14.00">NUM_START</text>
+</g>
+<!-- H&#45;&gt;NUM_START -->
+<g id="edge12" class="edge">
+<title>H-&gt;NUM_START</title>
+<path fill="none" stroke="black" d="M56.4,-391.24C61.46,-433.32 75.73,-494.64 115.77,-529.12 222.68,-621.19 396.43,-626.57 497.26,-620.49"/>
+<polygon fill="black" stroke="black" points="497.32,-623.99 507.07,-619.84 496.86,-617.01 497.32,-623.99"/>
+<text text-anchor="middle" x="302.11" y="-626.42" font-family="Times,serif" font-size="14.00">Цифра</text>
+</g>
+<!-- ERROR -->
+<g id="node9" class="node">
+<title>ERROR</title>
+<ellipse fill="none" stroke="black" cx="1252.08" cy="-264.12" rx="43.23" ry="43.23"/>
+<ellipse fill="none" stroke="black" cx="1252.08" cy="-264.12" rx="47.23" ry="47.23"/>
+<text text-anchor="middle" x="1252.08" y="-259.92" font-family="Times,serif" font-size="14.00" fill="red">ERROR</text>
+</g>
+<!-- H&#45;&gt;ERROR -->
+<g id="edge32" class="edge">
+<title>H-&gt;ERROR</title>
+<path fill="none" stroke="black" d="M70.69,-304.45C80.8,-285.33 95.63,-264.44 115.77,-253.12 285.34,-157.85 796.59,-209.32 990.52,-224.12 1061.31,-229.53 1141.97,-243.07 1194.56,-252.9"/>
+<polygon fill="black" stroke="black" points="1193.7,-256.3 1204.18,-254.72 1195,-249.42 1193.7,-256.3"/>
+<text text-anchor="middle" x="729.7" y="-212.96" font-family="Times,serif" font-size="14.00">Любой другой символ</text>
+</g>
+<!-- COMMENT -->
+<g id="node10" class="node">
+<title>COMMENT</title>
+<ellipse fill="none" stroke="black" cx="577.58" cy="-346.12" rx="60.4" ry="60.4"/>
+<text text-anchor="middle" x="577.58" y="-341.92" font-family="Times,serif" font-size="14.00">COMMENT</text>
+</g>
+<!-- H&#45;&gt;COMMENT -->
+<g id="edge4" class="edge">
+<title>H-&gt;COMMENT</title>
+<path fill="none" stroke="black" d="M98.26,-346.12C189.02,-346.12 395.91,-346.12 505.47,-346.12"/>
+<polygon fill="black" stroke="black" points="505.21,-349.62 515.21,-346.12 505.21,-342.62 505.21,-349.62"/>
+<text text-anchor="middle" x="302.11" y="-350.32" font-family="Times,serif" font-size="14.00"> '/' </text>
+</g>
+<!-- ID -->
+<g id="node12" class="node">
+<title>ID</title>
+<ellipse fill="none" stroke="black" cx="2223.66" cy="-518.12" rx="21.23" ry="21.23"/>
+<text text-anchor="middle" x="2223.66" y="-513.92" font-family="Times,serif" font-size="14.00">ID</text>
+</g>
+<!-- H&#45;&gt;ID -->
+<g id="edge9" class="edge">
+<title>H-&gt;ID</title>
+<path fill="none" stroke="black" d="M61.54,-390.84C69.55,-422.13 85.32,-461.96 115.77,-483.12 200.07,-541.7 473.93,-515.12 576.58,-515.12 576.58,-515.12 576.58,-515.12 2004.09,-515.12 2070.55,-515.12 2148.37,-516.53 2190.9,-517.41"/>
+<polygon fill="black" stroke="black" points="2190.59,-520.91 2200.66,-517.62 2190.74,-513.91 2190.59,-520.91"/>
+<text text-anchor="middle" x="1252.08" y="-519.32" font-family="Times,serif" font-size="14.00">Буква, '_'</text>
+</g>
+<!-- DELIM_OPER -->
+<g id="node13" class="node">
+<title>DELIM_OPER</title>
+<ellipse fill="none" stroke="black" cx="577.58" cy="-71.12" rx="71.12" ry="71.12"/>
+<text text-anchor="middle" x="577.58" y="-66.92" font-family="Times,serif" font-size="14.00">DELIM_OPER</text>
+</g>
+<!-- H&#45;&gt;DELIM_OPER -->
+<g id="edge29" class="edge">
+<title>H-&gt;DELIM_OPER</title>
+<path fill="none" stroke="black" d="M53.08,-300.94C55.06,-251.17 66.51,-172.6 115.77,-130.32 221.57,-39.54 394.56,-44.35 495.78,-57.07"/>
+<polygon fill="black" stroke="black" points="495.29,-60.53 505.66,-58.37 496.2,-53.59 495.29,-60.53"/>
+<text text-anchor="middle" x="302.11" y="-134.52" font-family="Times,serif" font-size="14.00">Входит в DELIMITERS или в '&lt;', '&gt;', ':', '!', '=', '~', '+', '-', '*', '/', 'a'</text>
+</g>
+<!-- IN_NUM -->
+<g id="node3" class="node">
+<title>IN_NUM</title>
+<ellipse fill="none" stroke="black" cx="900.61" cy="-612.12" rx="48.59" ry="48.59"/>
+<text text-anchor="middle" x="900.61" y="-607.92" font-family="Times,serif" font-size="14.00">IN_NUM</text>
+</g>
+<!-- NUM_START&#45;&gt;IN_NUM -->
+<g id="edge13" class="edge">
+<title>NUM_START-&gt;IN_NUM</title>
+<path fill="none" stroke="black" d="M647.05,-612.12C704.48,-612.12 785.63,-612.12 840.31,-612.12"/>
+<polygon fill="black" stroke="black" points="840.05,-615.62 850.05,-612.12 840.05,-608.62 840.05,-615.62"/>
+<text text-anchor="middle" x="729.7" y="-616.32" font-family="Times,serif" font-size="14.00">Цифра</text>
+</g>
+<!-- IN_NUM&#45;&gt;IN_NUM -->
+<g id="edge14" class="edge">
+<title>IN_NUM-&gt;IN_NUM</title>
+<path fill="none" stroke="black" d="M868.9,-649.44C866.51,-665.25 877.08,-678.71 900.61,-678.71 918.26,-678.71 928.62,-671.14 931.69,-660.68"/>
+<polygon fill="black" stroke="black" points="935.17,-661.13 932.24,-650.95 928.18,-660.73 935.17,-661.13"/>
+<text text-anchor="middle" x="900.61" y="-682.91" font-family="Times,serif" font-size="14.00">Цифра</text>
+</g>
+<!-- IN_DECIMAL_PART -->
+<g id="node4" class="node">
+<title>IN_DECIMAL_PART</title>
+<ellipse fill="none" stroke="black" cx="1252.08" cy="-744.12" rx="99.56" ry="99.56"/>
+<text text-anchor="middle" x="1252.08" y="-739.92" font-family="Times,serif" font-size="14.00">IN_DECIMAL_PART</text>
+</g>
+<!-- IN_NUM&#45;&gt;IN_DECIMAL_PART -->
+<g id="edge15" class="edge">
+<title>IN_NUM-&gt;IN_DECIMAL_PART</title>
+<path fill="none" stroke="black" d="M946.58,-629.11C997.15,-648.21 1080.94,-679.86 1147.84,-705.13"/>
+<polygon fill="black" stroke="black" points="1146.42,-708.33 1157.01,-708.59 1148.89,-701.78 1146.42,-708.33"/>
+<text text-anchor="middle" x="1071.52" y="-701.86" font-family="Times,serif" font-size="14.00">'.'</text>
+</g>
+<!-- IN_EXPONENT -->
+<g id="node5" class="node">
+<title>IN_EXPONENT</title>
+<ellipse fill="none" stroke="black" cx="1606.71" cy="-764.12" rx="77.02" ry="77.02"/>
+<text text-anchor="middle" x="1606.71" y="-759.92" font-family="Times,serif" font-size="14.00">IN_EXPONENT</text>
+</g>
+<!-- IN_NUM&#45;&gt;IN_EXPONENT -->
+<g id="edge16" class="edge">
+<title>IN_NUM-&gt;IN_EXPONENT</title>
+<path fill="none" stroke="black" d="M924.79,-654.81C962.6,-719.37 1044.32,-839.37 1152.52,-887.12 1280.79,-943.73 1441.25,-868.77 1532.76,-813.46"/>
+<polygon fill="black" stroke="black" points="1534.49,-816.5 1541.19,-808.29 1530.84,-810.54 1534.49,-816.5"/>
+<text text-anchor="middle" x="1252.08" y="-911.47" font-family="Times,serif" font-size="14.00"> 'e', 'E'</text>
+</g>
+<!-- IN_SUFFIX -->
+<g id="node6" class="node">
+<title>IN_SUFFIX</title>
+<ellipse fill="none" stroke="black" cx="2003.09" cy="-652.12" rx="59.33" ry="59.33"/>
+<text text-anchor="middle" x="2003.09" y="-647.92" font-family="Times,serif" font-size="14.00">IN_SUFFIX</text>
+</g>
+<!-- IN_NUM&#45;&gt;IN_SUFFIX -->
+<g id="edge17" class="edge">
+<title>IN_NUM-&gt;IN_SUFFIX</title>
+<path fill="none" stroke="black" d="M949.66,-611.55C1093.64,-610.24 1534.11,-609.06 1897.77,-638.12 1909.16,-639.03 1921.2,-640.33 1932.91,-641.78"/>
+<polygon fill="black" stroke="black" points="1932.13,-645.21 1942.5,-643.01 1933.02,-638.27 1932.13,-645.21"/>
+<text text-anchor="middle" x="1431.07" y="-621.15" font-family="Times,serif" font-size="14.00"> 'b', 'o', 'h', 'd'</text>
+</g>
+<!-- NUM_END -->
+<g id="node8" class="node">
+<title>NUM_END</title>
+<ellipse fill="none" stroke="black" cx="2223.66" cy="-764.12" rx="58.25" ry="58.25"/>
+<ellipse fill="none" stroke="black" cx="2223.66" cy="-764.12" rx="62.25" ry="62.25"/>
+<text text-anchor="middle" x="2223.66" y="-759.92" font-family="Times,serif" font-size="14.00">NUM_END</text>
+</g>
+<!-- IN_NUM&#45;&gt;NUM_END -->
+<g id="edge18" class="edge">
+<title>IN_NUM-&gt;NUM_END</title>
+<path fill="none" stroke="black" d="M948.21,-600.93C1014.91,-585.92 1141.63,-561.12 1251.08,-561.12 1251.08,-561.12 1251.08,-561.12 2004.09,-561.12 2066.33,-561.12 2093.39,-538.11 2143.42,-575.12 2180.49,-602.55 2200.34,-650.66 2210.9,-691.47"/>
+<polygon fill="black" stroke="black" points="2207.46,-692.13 2213.22,-701.02 2214.26,-690.47 2207.46,-692.13"/>
+<text text-anchor="middle" x="1606.71" y="-565.32" font-family="Times,serif" font-size="14.00">Не (Цифра, '.', 'e', 'E', 'b', 'o', 'h', 'd')</text>
+</g>
+<!-- IN_DECIMAL_PART&#45;&gt;IN_DECIMAL_PART -->
+<g id="edge19" class="edge">
+<title>IN_DECIMAL_PART-&gt;IN_DECIMAL_PART</title>
+<path fill="none" stroke="black" d="M1221.96,-839.14C1226.83,-852.63 1236.87,-861.68 1252.08,-861.68 1263.13,-861.68 1271.45,-856.9 1277.04,-849.12"/>
+<polygon fill="black" stroke="black" points="1280.02,-850.98 1281.5,-840.49 1273.8,-847.76 1280.02,-850.98"/>
+<text text-anchor="middle" x="1252.08" y="-865.88" font-family="Times,serif" font-size="14.00">Цифра</text>
+</g>
+<!-- IN_DECIMAL_PART&#45;&gt;IN_EXPONENT -->
+<g id="edge20" class="edge">
+<title>IN_DECIMAL_PART-&gt;IN_EXPONENT</title>
+<path fill="none" stroke="black" d="M1351.77,-749.72C1404.05,-752.69 1467.71,-756.3 1518.21,-759.16"/>
+<polygon fill="black" stroke="black" points="1517.74,-762.64 1527.92,-759.71 1518.13,-755.65 1517.74,-762.64"/>
+<text text-anchor="middle" x="1431.07" y="-761.85" font-family="Times,serif" font-size="14.00"> 'e', 'E'</text>
+</g>
+<!-- IN_DECIMAL_PART&#45;&gt;IN_SUFFIX -->
+<g id="edge21" class="edge">
+<title>IN_DECIMAL_PART-&gt;IN_SUFFIX</title>
+<path fill="none" stroke="black" d="M1344.99,-707.33C1393.39,-689.82 1454.24,-670.69 1510.5,-661.32 1659.18,-636.57 1836.63,-641.59 1932.43,-647.08"/>
+<polygon fill="black" stroke="black" points="1932,-650.56 1942.19,-647.66 1932.41,-643.58 1932,-650.56"/>
+<text text-anchor="middle" x="1606.71" y="-665.52" font-family="Times,serif" font-size="14.00"> 'b', 'o', 'h', 'd'</text>
+</g>
+<!-- IN_DECIMAL_PART&#45;&gt;NUM_END -->
+<g id="edge22" class="edge">
+<title>IN_DECIMAL_PART-&gt;NUM_END</title>
+<path fill="none" stroke="black" d="M1325.8,-811.57C1374.16,-851.65 1441.32,-898.74 1510.5,-920.12 1745.38,-992.74 2033.83,-865.35 2159.33,-799.66"/>
+<polygon fill="black" stroke="black" points="2160.62,-802.94 2167.82,-795.17 2157.35,-796.75 2160.62,-802.94"/>
+<text text-anchor="middle" x="1809.34" y="-943.16" font-family="Times,serif" font-size="14.00">Не (Цифра, 'e', 'E', 'b', 'o', 'h', 'd')</text>
+</g>
+<!-- IN_EXPONENT&#45;&gt;IN_EXPONENT -->
+<g id="edge23" class="edge">
+<title>IN_EXPONENT-&gt;IN_EXPONENT</title>
+<path fill="none" stroke="black" d="M1591.77,-840.17C1594.09,-851.49 1599.07,-859.14 1606.71,-859.14 1611.6,-859.14 1615.4,-856 1618.11,-850.76"/>
+<polygon fill="black" stroke="black" points="1621.32,-852.19 1621.16,-841.6 1614.68,-849.98 1621.32,-852.19"/>
+<text text-anchor="middle" x="1606.71" y="-863.34" font-family="Times,serif" font-size="14.00">'+', '-'</text>
+</g>
+<!-- IN_EXPONENT&#45;&gt;IN_EXPONENT -->
+<g id="edge24" class="edge">
+<title>IN_EXPONENT-&gt;IN_EXPONENT</title>
+<path fill="none" stroke="black" d="M1573.78,-834.21C1573.6,-858.01 1584.58,-877.14 1606.71,-877.14 1625.2,-877.14 1635.91,-863.77 1638.82,-845.48"/>
+<polygon fill="black" stroke="black" points="1642.3,-845.94 1639.53,-835.72 1635.31,-845.44 1642.3,-845.94"/>
+<text text-anchor="middle" x="1606.71" y="-881.34" font-family="Times,serif" font-size="14.00">Цифра</text>
+</g>
+<!-- IN_EXPONENT&#45;&gt;IN_SUFFIX -->
+<g id="edge25" class="edge">
+<title>IN_EXPONENT-&gt;IN_SUFFIX</title>
+<path fill="none" stroke="black" d="M1680.96,-743.32C1753.6,-722.69 1863.95,-691.35 1934.53,-671.31"/>
+<polygon fill="black" stroke="black" points="1935.39,-674.71 1944.05,-668.61 1933.47,-667.97 1935.39,-674.71"/>
+<text text-anchor="middle" x="1809.34" y="-735.23" font-family="Times,serif" font-size="14.00"> 'b', 'o', 'h', 'd'</text>
+</g>
+<!-- IN_EXPONENT&#45;&gt;NUM_END -->
+<g id="edge26" class="edge">
+<title>IN_EXPONENT-&gt;NUM_END</title>
+<path fill="none" stroke="black" d="M1684.04,-764.12C1803.42,-764.12 2032.75,-764.12 2149.9,-764.12"/>
+<polygon fill="black" stroke="black" points="2149.71,-767.62 2159.71,-764.12 2149.71,-760.62 2149.71,-767.62"/>
+<text text-anchor="middle" x="2003.09" y="-768.32" font-family="Times,serif" font-size="14.00">Не (Цифра, '+', '-', 'b', 'o', 'h', 'd')</text>
+</g>
+<!-- IN_SUFFIX&#45;&gt;NUM_END -->
+<g id="edge27" class="edge">
+<title>IN_SUFFIX-&gt;NUM_END</title>
+<path fill="none" stroke="black" d="M2056.45,-678.95C2086.76,-694.48 2125.18,-714.17 2157.45,-730.7"/>
+<polygon fill="black" stroke="black" points="2155.85,-733.82 2166.34,-735.26 2159.04,-727.59 2155.85,-733.82"/>
+<text text-anchor="middle" x="2125.92" y="-725.65" font-family="Times,serif" font-size="14.00">Любой</text>
+</g>
+<!-- IN_SUFFIX&#45;&gt;ID -->
+<g id="edge28" class="edge">
+<title>IN_SUFFIX-&gt;ID</title>
+<path fill="none" stroke="black" d="M2054.24,-621.38C2098.06,-594.52 2160.03,-556.52 2195.3,-534.9"/>
+<polygon fill="black" stroke="black" points="2196.93,-538.01 2203.63,-529.8 2193.27,-532.04 2196.93,-538.01"/>
+<text text-anchor="middle" x="2125.92" y="-589.32" font-family="Times,serif" font-size="14.00">Буква</text>
+</g>
+<!-- ID_END -->
+<g id="node7" class="node">
+<title>ID_END</title>
+<ellipse fill="none" stroke="black" cx="2494.68" cy="-485.12" rx="45.9" ry="45.9"/>
+<ellipse fill="none" stroke="black" cx="2494.68" cy="-485.12" rx="49.9" ry="49.9"/>
+<text text-anchor="middle" x="2494.68" y="-480.92" font-family="Times,serif" font-size="14.00">ID_END</text>
+</g>
+<!-- ID_END&#45;&gt;H -->
+<g id="edge1" class="edge">
+<title>ID_END-&gt;H</title>
+<path fill="none" stroke="black" d="M2444.64,-480.45C2390.76,-475.73 2301.63,-469.12 2224.66,-469.12 576.58,-469.12 576.58,-469.12 576.58,-469.12 399.86,-469.12 198.25,-401.73 105.43,-366.71"/>
+<polygon fill="black" stroke="black" points="106.93,-363.54 96.34,-363.25 104.44,-370.08 106.93,-363.54"/>
+<text text-anchor="middle" x="1431.07" y="-473.32" font-family="Times,serif" font-size="14.00">Не (Буква, Цифра, '_')</text>
+</g>
+<!-- NUM_END&#45;&gt;H -->
+<g id="edge2" class="edge">
+<title>NUM_END-&gt;H</title>
+<path fill="none" stroke="black" d="M2195.73,-820.09C2161,-883.2 2094.17,-977.12 2004.09,-977.12 576.58,-977.12 576.58,-977.12 576.58,-977.12 323.64,-977.12 253.3,-855.41 115.77,-643.12 68.18,-569.66 56.21,-466.45 53.67,-403.04"/>
+<polygon fill="black" stroke="black" points="57.17,-403.08 53.35,-393.2 50.18,-403.31 57.17,-403.08"/>
+<text text-anchor="middle" x="1252.08" y="-981.32" font-family="Times,serif" font-size="14.00">Не (Цифра, '.', 'e', 'E', 'b', 'o', 'h', 'd')</text>
+</g>
+<!-- COMMENT&#45;&gt;COMMENT -->
+<g id="edge6" class="edge">
+<title>COMMENT-&gt;COMMENT</title>
+<path fill="none" stroke="black" d="M549.35,-399.99C551.08,-413.97 560.49,-424.52 577.58,-424.52 589.86,-424.52 598.17,-419.07 602.52,-410.81"/>
+<polygon fill="black" stroke="black" points="605.81,-412.02 605.37,-401.43 599.11,-409.99 605.81,-412.02"/>
+<text text-anchor="middle" x="577.58" y="-428.72" font-family="Times,serif" font-size="14.00">Любой, кроме '*'</text>
+</g>
+<!-- COMMENT_STAR -->
+<g id="node11" class="node">
+<title>COMMENT_STAR</title>
+<ellipse fill="none" stroke="black" cx="900.61" cy="-323.12" rx="89.91" ry="89.91"/>
+<text text-anchor="middle" x="900.61" y="-318.92" font-family="Times,serif" font-size="14.00">COMMENT_STAR</text>
+</g>
+<!-- COMMENT&#45;&gt;COMMENT_STAR -->
+<g id="edge5" class="edge">
+<title>COMMENT-&gt;COMMENT_STAR</title>
+<path fill="none" stroke="black" d="M633.77,-323.67C644.53,-320.21 655.84,-317.17 666.7,-315.32 709.91,-307.99 758.25,-308.26 799.64,-311.01"/>
+<polygon fill="black" stroke="black" points="799.39,-314.5 809.61,-311.74 799.9,-307.52 799.39,-314.5"/>
+<text text-anchor="middle" x="729.7" y="-319.52" font-family="Times,serif" font-size="14.00"> '*' </text>
+</g>
+<!-- COMMENT_STAR&#45;&gt;H -->
+<g id="edge7" class="edge">
+<title>COMMENT_STAR-&gt;H</title>
+<path fill="none" stroke="black" d="M814.37,-296.26C766.27,-282.5 704.75,-267.23 648.7,-260.32 448.06,-235.6 210.41,-297.4 106.61,-328.96"/>
+<polygon fill="black" stroke="black" points="105.78,-325.55 97.25,-331.83 107.84,-332.24 105.78,-325.55"/>
+<text text-anchor="middle" x="577.58" y="-264.52" font-family="Times,serif" font-size="14.00"> '/' </text>
+</g>
+<!-- COMMENT_STAR&#45;&gt;ERROR -->
+<g id="edge33" class="edge">
+<title>COMMENT_STAR-&gt;ERROR</title>
+<path fill="none" stroke="black" d="M989.35,-308.31C1053.47,-297.49 1138.58,-283.12 1194.07,-273.75"/>
+<polygon fill="black" stroke="black" points="1194.33,-277.25 1203.61,-272.14 1193.17,-270.35 1194.33,-277.25"/>
+<text text-anchor="middle" x="1071.52" y="-308.24" font-family="Times,serif" font-size="14.00">Любой другой символ</text>
+</g>
+<!-- COMMENT_STAR&#45;&gt;COMMENT -->
+<g id="edge8" class="edge">
+<title>COMMENT_STAR-&gt;COMMENT</title>
+<path fill="none" stroke="black" d="M810.66,-330.74C804.58,-331.22 798.55,-331.69 792.7,-332.12 744.99,-335.69 691.26,-339.2 649.56,-341.82"/>
+<polygon fill="black" stroke="black" points="649.41,-338.32 639.64,-342.43 649.84,-345.31 649.41,-338.32"/>
+<text text-anchor="middle" x="729.7" y="-344.67" font-family="Times,serif" font-size="14.00">Любой, кроме '/'</text>
+</g>
+<!-- ID&#45;&gt;ID_END -->
+<g id="edge11" class="edge">
+<title>ID-&gt;ID_END</title>
+<path fill="none" stroke="black" d="M2244.88,-515.64C2284.43,-510.79 2373.39,-499.88 2433.5,-492.51"/>
+<polygon fill="black" stroke="black" points="2433.74,-496 2443.23,-491.31 2432.88,-489.06 2433.74,-496"/>
+<text text-anchor="middle" x="2365.35" y="-512.57" font-family="Times,serif" font-size="14.00">Не (Буква, Цифра, '_')</text>
+</g>
+<!-- ID&#45;&gt;ID -->
+<g id="edge10" class="edge">
+<title>ID-&gt;ID</title>
+<path fill="none" stroke="black" d="M2207.91,-533.02C2201.61,-544.99 2206.86,-557.35 2223.66,-557.35 2235.08,-557.35 2241.17,-551.64 2241.91,-544.22"/>
+<polygon fill="black" stroke="black" points="2245.34,-543.49 2239.74,-534.49 2238.5,-545.01 2245.34,-543.49"/>
+<text text-anchor="middle" x="2223.66" y="-561.55" font-family="Times,serif" font-size="14.00">Буква, Цифра, '_'</text>
+</g>
+<!-- DELIM_OPER&#45;&gt;H -->
+<g id="edge31" class="edge">
+<title>DELIM_OPER-&gt;H</title>
+<path fill="none" stroke="black" d="M527.51,-122.22C515.63,-131.97 502.32,-141.02 488.45,-147.12 335.8,-214.31 248.18,-89.7 115.77,-191.12 84.97,-214.72 69.4,-256.02 61.56,-290.06"/>
+<polygon fill="black" stroke="black" points="58.14,-289.3 59.5,-299.81 64.99,-290.75 58.14,-289.3"/>
+</g>
+<!-- DELIM_OPER&#45;&gt;DELIM_OPER -->
+<g id="edge30" class="edge">
+<title>DELIM_OPER-&gt;DELIM_OPER</title>
+<path fill="none" stroke="black" d="M550.14,-137.2C553.13,-150.63 562.28,-160.25 577.58,-160.25 588.46,-160.25 596.22,-155.39 600.88,-147.75"/>
+<polygon fill="black" stroke="black" points="604.07,-149.19 604.46,-138.61 597.55,-146.64 604.07,-149.19"/>
+<text text-anchor="middle" x="577.58" y="-164.45" font-family="Times,serif" font-size="14.00">Входит в '=', 's'</text>
+</g>
+</g>
+</svg>
