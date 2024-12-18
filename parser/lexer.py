@@ -1,3 +1,5 @@
+from typing import List
+
 class Token:
     def __init__(self, table_num, lexeme_num, line, column, value=None):
         self.table_num = table_num  # n
@@ -6,8 +8,118 @@ class Token:
         self.column = column
         self.value = value
 
+    # Конец файла
+    EOF_table = ["EOF"]
+
+    # Таблица служебных слов (n = 1)
+    keywords_table = [
+        "program",
+        "var",
+        "begin",
+        "end",
+        "if",
+        "else",
+        "while",
+        "for",
+        "to",
+        "then",
+        "do",
+        "read",
+        "write",
+        "true",
+        "false",
+        "integer",
+        "real",
+        "boolean",
+        "as",
+    ]
+
+    # Таблица операторов отношений (n = 2)
+    rel_op_table = ["NE", "EQ", "LT", "LE", "GT", "GE"]
+
+    # Таблица операций сложения (n = 3)
+    add_ops_table = ["plus", "min", "or"]
+
+    # Таблица операций умножения (n = 4)
+    mul_ops_table = ["mult", "div", "and"]
+
+    # Таблица унарных операций (n = 5)
+    uops_table = ["~"]
+
+    # Таблица разделителей (n = 6)
+    delimiters_table = ["[", "]", "(", ")", ",", ":", ";", ".", "=", "<", ">"]
+    delimiters_dict = {
+        "[": "lbracket",
+        "]": "rbracket",
+        "(": "lparen",
+        ")": "rparen",
+        ",": "comma",
+        ":": "colon",
+        ";": "semicolon",
+        ".": "dot",
+        "=": "assign",
+        "<": "lt",
+        ">": "gt",
+    }
+    # Таблица для чисел (n = 7)
+    numbers_table = []
+
+    # Таблица для идентификаторов (n = 8)
+    identifiers_table = []
+    
+    tables = [
+        EOF_table,
+        keywords_table,
+        rel_op_table,
+        add_ops_table,
+        mul_ops_table,
+        uops_table,
+        delimiters_table,
+        numbers_table,
+        identifiers_table,
+    ]
+
+    def get_table_by_num(self) -> List[str]:
+        try:
+            return Token.tables[self.table_num]
+        except IndexError:
+            raise ValueError(f"Invalid table number: {self.table_num}")
+
+
+    def get_type_group(self) -> str:
+        if self.table_num == 1:
+            return "keyword"
+        elif self.table_num == 2:
+            return "rel_op"
+        elif self.table_num == 3:
+            return "add_op"
+        elif self.table_num == 4:
+            return "mul_op"
+        elif self.table_num == 5:
+            return "uop"
+        elif self.table_num == 6:
+            return "delimiter"
+        elif self.table_num == 7:
+            return "numbers"
+        elif self.table_num == 8:
+            return "identifier"
+        
+    def get_type(self) -> str:
+        if self.table_num == 6:
+            return Token.delimiters_dict[self.value]
+        elif self.table_num == 7:
+            return "number"
+        elif self.table_num == 8:
+            return "identifier"
+        else:
+            table = self.get_table_by_num()
+            return table[self.lexeme_num - 1]
+
     def __str__(self):
-        return f"'{self.value}': ({self.table_num}, {self.lexeme_num})"
+        try:
+            return f"GROUP: {self.get_type_group():<12}| TYPE: {self.get_type():<12}| VALUE: '{self.value}'"
+        except Exception:
+            return f"GROUP: {"EOF":<12}| TYPE: {"EOF":<12}| VALUE: None"
 
 
 class Lexer:
@@ -247,7 +359,7 @@ class Lexer:
                 self.add_token(0, 0, value=self.current_char)
                 self.advance()
 
-        self.add_token(0, 0, value="EOF")  # Добавляем токен конца файла
+        self.add_token(0, 0, "EOF")  # Добавляем токен конца файла
         return self.tokens
 
     def peek(self):

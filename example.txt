@@ -1,9 +1,9 @@
 program
     var
-        x, y : integer;
+        x, y: integer;
     begin
         read(x); /* Вводим значение x */
-        y as 9ABLh;
+        y as x;
         while x GT 0 do [
             y as y plus x;
             x as x min 1
